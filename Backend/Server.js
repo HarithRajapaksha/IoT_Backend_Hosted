@@ -123,6 +123,37 @@ app.get('/getdata/:id', async (req, res) => {
 });
 
 
+app.get('/getsteps', async (req, res) => {
+  try {
+    const dbRef = ref(database, 'logs');
+    const snapshot = await get(dbRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const stepsCount = {};
+
+      for (const dateKey in data) {
+        const entry = data[dateKey];
+        const steps = entry.steps || 0;
+
+        const date = new Date(dateKey);
+        if (!isNaN(date)) {
+          const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`; // MM-YYYY
+          stepsCount[monthYear] = (stepsCount[monthYear] || 0) + steps;
+        }
+      }
+
+      res.status(200).json(stepsCount);
+    } else {
+      res.status(404).json({ message: 'No data found' });
+    }
+  } catch (error) {
+    console.error('Error getting steps data from Firebase:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 // Create an HTTP server
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
