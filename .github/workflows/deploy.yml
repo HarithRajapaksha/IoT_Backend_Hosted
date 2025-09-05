@@ -1,9 +1,8 @@
 name: Deploy Backend to Ubuntu Server
 
 on:
-  push:
-    branches:
-      - lake/ci-cd
+  pull_request:
+    types: [assigned]
 
 jobs:
   deploy:
